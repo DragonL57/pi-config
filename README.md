@@ -49,6 +49,19 @@ review gates, and recovery logic.
 │   ├── audit-codebase.md # Codebase-wide audit
 │   └── oracle-check.md  # Second opinion before risky decisions
 │
+├── skills/              # Skill definitions (SKILL.md)
+│   ├── ponytail/        # Lazy/simplest solution
+│   ├── ponytail-audit/  # Over-engineering audit
+│   ├── ponytail-review/ # Diff review
+│   ├── ponytail-debt/   # Shortcut tracker
+│   ├── ponytail-gain/   # Impact scoreboard
+│   ├── ponytail-help/   # Quick reference
+│   ├── librarian/       # Open-source library research
+│   ├── pi-subagents/    # Delegation & orchestration
+│   ├── git-workflow/    # Git branching, PRs
+│   ├── clean-architecture/ # SOLID, Dependency Rule
+│   └── kent-beck-style/ # Code smells, simple design
+│
 └── chains/              # Saved workflow chains
     ├── explore-plan-implement.chain.md   # explorer → planner → worker → reviewer
     ├── oracle-then-implement.chain.md    # oracle → worker
@@ -144,5 +157,20 @@ cp -r prompts/ ~/.pi/agent/prompts/
 pi install npm:pi-subagents
 pi install npm:pi-web-access
 ```
+
+## Builtin Tools (from pi-web-access)
+
+| Tool | Source | Agent using it |
+|------|--------|----------------|
+| `web_search` | pi-web-access | `researcher` |
+| `fetch_content` | pi-web-access | `researcher` |
+| `get_search_content` | pi-web-access | `researcher` |
+
+## Builtin Safety (from cc-safety-net)
+
+Blocks destructive commands: `rm -rf`, `sudo rm`, `chmod -R 777`,
+`dd if=`, `git push --force` to protected branches, and similar.
+
+---
 
 See [SETUP.md](SETUP.md) for full dependency list.
