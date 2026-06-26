@@ -1,95 +1,49 @@
-# GLOBAL AGENT INSTRUCTIONS
+# Global Agent Instructions
 
-You are an orchestrator. Your job is to pick the right subagent for each
-task and pass clear context. Do not do the subagent's work yourself.
+## 1. Use Your Skills
 
-The agent loop is a simple while-loop. The model reasons; you orchestrate.
+Before starting any task, scan your available skills and load the relevant ones. Skills are listed in your system prompt under `<available_skills>`. If a skill's description matches the task, read its `SKILL.md` and follow its instructions.
 
----
+Skills installed:
+- **ponytail** + variants — lazy/simplest solution
+- **librarian** — research open-source libraries
+- **git-workflow** — git branching, commits, PRs, CI/CD
+- **clean-architecture** — SOLID, Dependency Rule, layer boundaries
+- **kent-beck-style** — refactoring, code smells, simple design
+- **todo** — task tracking across sessions
+- **cc-safety-net** — blocks destructive commands
 
-## RULE 1: PICK THE RIGHT TOOL FOR THE TASK
+This is not optional. Check first, act second.
 
-### For exploration (understanding code)
-→ Use **scout** or **explorer**
-- "How does X work?", "Find where Y is defined", "Map the data flow", "Check the current design"
-- Give it: what to find, where to look, what to return
-- Do NOT: read files yourself, grep yourself, trace calls yourself
+## 2. Pre-Load Core Skills at Session Start
 
-### For planning
-→ Use **planner**
-- "Plan the implementation of X", "Design the architecture for Y"
-- Give it: context from scout, requirements, constraints
-- Do NOT: plan in your head and then implement — write a plan first
+At the start of every session, immediately read the SKILL.md of these skills — do NOT wait for a matching task:
 
-### For implementation
-→ Use **worker** or **implementer**
-- "Add feature X", "Fix bug Y", "Refactor Z"
-- Give it: the plan, which files to change, what the change should do
-- Do NOT: edit files yourself unless it's a single trivial change
+- **ponytail** — already auto-loaded by extension
+- **clean-architecture** — architecture principles apply to every code review
+- **kent-beck-style** — code smells + simple design apply to every review
+- **librarian** — research workflow for any library/API question
+- **git-workflow** — git rules apply to every git operation
 
-### For review
-→ Use **reviewer**, **code-reviewer**, **architect**, or **security-auditor**
-- "Review this code", "Check for issues", "Audit security"
-- Give it: fresh context (not forked), specific review angles
-- Do NOT: review code yourself — you wrote it, you're biased
+These are always relevant. Read them first. Every session.
 
-### For research
-→ Use **researcher**
-- "How does library X work?", "What's the best practice for Y?"
-- Give it: specific questions, what to look up, what to return
-- Do NOT: use web_search yourself — let the researcher do it
+## 3. Verbose Logging for Debugging & New Features
 
-### For second opinions
-→ Use **oracle**
-- "I'm not sure about this approach", "What am I missing?"
-- Give it: your current approach, the options, what's at stake
-- Do NOT: proceed without oracle if you're uncertain
+When working on new features, debugging, or getting stuck on unexpected behavior, add very verbose logging to trace critical paths and find the root cause. This includes:
+- Logging function entry/exit with key parameter values
+- Logging conditional branches taken and their outcomes
+- Logging API responses, file reads, and external service calls
+- Logging error states with full context (not just "something failed")
+- Temporarily adding console.log / print / logger.debug statements to narrow down issues
 
-### For validation
-→ Use **validator**
-- "Verify the implementation works", "Check tests pass"
-- Give it: acceptance criteria, what to verify
-- Do NOT: run tests yourself and interpret results — delegate
+Remove or mute the debug logs once the feature is working and stable.
 
----
+## 4. Research Before Coding
 
-## RULE 2: WRITE GOOD TASK STRINGS
+Before writing any code, research:
+- Existing docs, guidelines, and conventions for the project
+- Standard library and native platform features that might already solve the problem
+- Existing patterns in the codebase (read related files first)
+- Web search for best practices, API docs, and common pitfalls
 
-Every subagent task string needs:
-
-1. **What to do** — one clear sentence
-2. **What it needs to know** — context, files, background
-3. **What to return** — the deliverable
-4. **What not to do** — constraints
-
-Good: `"Find all template files for course cards in the project. Look in blocks/iomad_mycourses/templates/ and any theme template dirs. Return each file path, what it renders, and the HTML structure of the card."`
-
-Bad: `"Check the course cards"` (too vague — no context, no deliverable)
-Bad: `"Read file1, then grep for X, then read file2..."` (too prescriptive — tell WHAT, not HOW)
-
----
-
-## RULE 3: USE ASYNC BY DEFAULT
-
-Launch every subagent with `async: true`. While it runs, do other useful
-work — read unrelated docs, prepare the next step, plan.
-
----
-
-## RULE 4: PASS CONTEXT EXPLICITLY
-
-Subagents are isolated. They don't share context. If a worker needs what
-a scout found, put it in the worker's task string.
-
----
-
-## THE DEFAULT WORKFLOW
-
-For any task that isn't a trivial one-line fix:
-
-```
-scout → planner → worker (async) → reviewer (fresh) → fixer → validator
-```
-
-Each step feeds into the next via explicit context in the task string.
-Skip a step only if it clearly doesn't apply.
+Do not guess APIs, patterns, or conventions. Look them up first.
