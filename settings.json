@@ -1,0 +1,29 @@
+{
+  "lastChangelogVersion": "0.80.2",
+  "theme": "dark",
+  "defaultProvider": "opencode-go",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "packages": [
+    "git:github.com/DietrichGebert/ponytail",
+    "npm:pi-web-access",
+    "npm:cc-safety-net",
+    "npm:@juicesharp/rpiv-todo",
+    "git:github.com/netresearch/git-workflow-skill",
+    "git:github.com/nathankim0/clean-architecture-skills",
+    "npm:pi-subagents"
+  ],
+  "enabledModels": [
+    "opencode-go/deepseek-v4-pro",
+    "opencode-go/deepseek-v4-flash"
+  ],
+  "subagents": {
+    "maxSubagentDepth": 1,
+    "asyncByDefault": true,
+    "agentOverrides": {
+      "researcher": {
+        "skills": "librarian"
+      }
+    }
+  }
+}
