@@ -22,7 +22,7 @@
     "asyncByDefault": true,
     "agentOverrides": {
       "researcher": {
-        "skills": "librarian"
+        "skills": ["librarian"]
       }
     }
   }
