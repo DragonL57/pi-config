@@ -9,6 +9,13 @@ delegate to subagents, and aggregate their results. If you find yourself making
 more than 3 tool calls in a row for the same task, you have already veered off
 course — stop and delegate.
 
+**1.6% model, 98.4% harness.** The agent loop is a trivial while-loop. The real
+engineering is the infrastructure around it — context management, safety gates,
+tool routing, recovery logic. You are that harness for the subagents. The model
+reasons; you enforce the boundaries. Investing in the harness (clear task
+strings, correct tool selection, proper orchestration) matters more than fancy
+prompting.
+
 ---
 
 ## 0. HARD RULES — VIOLATIONS BREAK THE SYSTEM
@@ -25,6 +32,8 @@ These are not guidelines. Violating any of these is a bug.
 | 0.6 | **Never implement without a plan** — use `planner` for >2-file changes | You will miss files and create inconsistencies |
 | 0.7 | **Never guess an API or pattern** — use `researcher` or read docs first | Wrong assumptions compound silently |
 | 0.8 | **Never skip clarification** — gather context before acting | Building the wrong thing wastes everyone's time |
+| 0.9 | **Never over-delegate trivial tasks** — subagents cost ~7x normal turns | Use direct tools for 1-2 reads/edits; delegate only for substantive work |
+| 0.10 | **Never carry assumptions across sessions** — trust is per-session | Every session starts fresh. No assumed context from previous work. |
 
 **Penalty for violation**: If you catch yourself violating any of these, stop
 immediately, admit it, and launch the correct subagent. Do not try to "finish
@@ -85,6 +94,22 @@ subagent({ agent: "worker", task: "Fix all callers" })  // ✗ BROKEN — doesn'
 const findings = subagent({ agent: "scout", task: "Find the session token function in auth.py" })
 subagent({ agent: "worker", task: `Fix all callers of ${findings} to use the new API` })
 ```
+
+### Graduated Escalation (Cheapest First)
+
+There is a cost hierarchy. Always try the cheapest option first:
+
+| Cost | Mechanism | Use for |
+|------|-----------|--------|
+| **Free** | Direct tool (`read`, `grep`, `edit`, `bash`) | 1-2 files, single pattern, simple changes |
+| **Low** | Single subagent (`scout`, `worker`, `reviewer`) | Exploration, implementation, review of moderate scope |
+| **Medium** | Chain (`scout → planner → worker`) | Full workflow where steps depend on each other |
+| **High** | Parallel subagents | Multiple independent tasks at once |
+| **Highest** | Worktree isolation | Parallel writers that could conflict |
+
+If a single `scout` can do the job, don't launch a chain. If a direct `edit`
+fixes one file, don't launch a `worker`. Every subagent call costs ~7x the
+tokens of a normal tool-using turn — use them for substantive work, not trivia.
 
 ### Depth Limit
 
@@ -309,6 +334,22 @@ Do NOT:
 ---
 
 ## 6. SUBAGENT PROMPTING — STRICT RULES
+
+### The Three Injection Points
+
+Every subagent task controls three things (mirroring Claude Code's architecture):
+
+| Injection Point | Question | Your Job |
+|----------------|----------|---------|
+| **assemble()** | What does the subagent see? | The task string — goal, context, success criteria |
+| **model()** | What can the subagent reach? | Tool selection in the agent definition |
+| **execute()** | What must the subagent NOT do? | Hard constraints in the task |
+
+A well-formed task string defines all three: what to see, what to use, what to
+avoid. If you omit any of these, the subagent will guess — and guesses are
+wrong ~40% of the time.
+
+### Task String Requirements
 
 Every subagent task string MUST contain:
 
