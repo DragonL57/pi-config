@@ -9,7 +9,10 @@
     "npm:pi-web-access",
     "npm:@juicesharp/rpiv-todo",
     "git:github.com/netresearch/git-workflow-skill",
-    "git:github.com/nathankim0/clean-architecture-skills"
+    "git:github.com/nathankim0/clean-architecture-skills",
+    "npm:pi-readseek",
+    "npm:@hypabolic/pi-hypa",
+    "npm:pi-playwright"
   ],
   "enabledModels": [
     "opencode-go/deepseek-v4-pro",
